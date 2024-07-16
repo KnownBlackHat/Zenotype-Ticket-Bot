@@ -13,6 +13,7 @@ async def main():
     log.setup_logging()
     logger = logging.getLogger(Client.name)
     bot = TicketBot(intents=disnake.Intents.all(), command_prefix=Client.prefix)
+    await bot.init_db()
     try:
         bot.load_bot_extensions()
     except Exception:
