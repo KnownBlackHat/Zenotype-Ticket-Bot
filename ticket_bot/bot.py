@@ -1,11 +1,11 @@
 import logging
 
 from disnake.ext import commands
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from ticket_bot.constants import Database
 from ticket_bot.database import Base
+from ticket_bot.utils import extensions
 
 logger = logging.getLogger(__name__)
 
@@ -36,3 +36,10 @@ class TicketBot(commands.Bot):
         await super().close()
         if self.db_engine:
             await self.db_engine.dispose()
+
+    def load_bot_extensions(self) -> None:
+        """Load bot extensions released by walk_extensions()"""
+        for ext in extensions.walk_extensions():
+            logger.info(f"{ext} extension loaded!")
+            self.load_extension(ext)
+        logger.info("Extension loading process completed")
