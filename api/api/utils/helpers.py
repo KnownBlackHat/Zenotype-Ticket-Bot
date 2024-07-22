@@ -5,6 +5,7 @@ from aiohttp import web
 
 
 def ensure_guild[T, **P](func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T | web.Response]]:
+    """Ensures guild query is valid"""
     @wraps(func)
     async def inner(*args: P.args, **kwargs: P.kwargs) -> T | web.Response:
         if not isinstance(args[1], web.Request):

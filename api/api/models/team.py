@@ -8,7 +8,7 @@ class Team(Base):
     __tablename__ = "teams"
 
     user: Mapped[int] = mapped_column(sqlalchemy.BigInteger)
-    team: Mapped[str] = mapped_column(sqlalchemy.Text)
+    name: Mapped[str] = mapped_column(sqlalchemy.Text)
 
     guild_id: Mapped[int] = mapped_column(
         sqlalchemy.ForeignKey("guilds.id", ondelete="CASCADE"), index=True
