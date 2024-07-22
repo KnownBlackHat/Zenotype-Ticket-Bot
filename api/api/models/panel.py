@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 import sqlalchemy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -12,6 +14,12 @@ class Panel(Base):
     thumbnail: Mapped[str] = mapped_column(sqlalchemy.String)
     image: Mapped[str] = mapped_column(sqlalchemy.String)
     color: Mapped[str] = mapped_column(sqlalchemy.Text)
+    createdAt: Mapped[int] = mapped_column(
+        sqlalchemy.DateTime, default=datetime.now(UTC)
+    )
+    updatedAt: Mapped[int] = mapped_column(
+        sqlalchemy.DateTime, onupdate=datetime.now(UTC)
+    )
 
     category: Mapped[int] = mapped_column(sqlalchemy.BigInteger)
 
