@@ -8,9 +8,9 @@ class Panel(Base):
     __tablename__ = "panels"
 
     title: Mapped[str] = mapped_column(sqlalchemy.String)
+    description: Mapped[str] = mapped_column(sqlalchemy.Text)
     thumbnail: Mapped[str] = mapped_column(sqlalchemy.String)
     image: Mapped[str] = mapped_column(sqlalchemy.String)
-    description: Mapped[str] = mapped_column(sqlalchemy.Text)
     color: Mapped[str] = mapped_column(sqlalchemy.Text)
 
     category: Mapped[int] = mapped_column(sqlalchemy.BigInteger)

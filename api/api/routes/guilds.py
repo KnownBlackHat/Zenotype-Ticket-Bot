@@ -33,5 +33,6 @@ class Guilds(Root):
         async with self.db.begin() as session:
             sql_query = Guild(name=iname, guild=iguild)
             session.add(sql_query)
+            await session.commit()
 
         return web.json_response({"success": True})
