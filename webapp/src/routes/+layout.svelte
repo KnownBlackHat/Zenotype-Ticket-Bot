@@ -1,53 +1,67 @@
 <script>
-	import Header from './Header.svelte';
 	import '../app.css';
+	import { navigating } from '$app/stores';
 </script>
 
-<div class="app">
-	<Header />
+{#if $navigating}
+	<div
+		class="fixed flex items-center justify-center text-center top-0 w-full h-full bg-black opacity-70 z-50"
+	>
+		<svg
+			version="1.1"
+			title="Center Loader"
+			class="h-80"
+			id="L4"
+			xmlns="http://www.w3.org/2000/svg"
+			xmlns:xlink="http://www.w3.org/1999/xlink"
+			x="0px"
+			y="0px"
+			viewBox="-23 0 100 100"
+			enable-background="new 0 0 0 0"
+			xml:space="preserve"
+		>
+			<circle fill="#fff" stroke="none" cx="6" cy="50" r="6">
+				<animate
+					attributeName="opacity"
+					dur="1s"
+					values="0;1;0"
+					repeatCount="indefinite"
+					begin="0.1"
+				/>
+			</circle>
+			<circle fill="#fff" stroke="none" cx="26" cy="50" r="6">
+				<animate
+					attributeName="opacity"
+					dur="1s"
+					values="0;1;0"
+					repeatCount="indefinite"
+					begin="0.2"
+				/>
+			</circle>
+			<circle fill="#fff" stroke="none" cx="46" cy="50" r="6">
+				<animate
+					attributeName="opacity"
+					dur="1s"
+					values="0;1;0"
+					repeatCount="indefinite"
+					begin="0.3"
+				/>
+			</circle>
+		</svg>
+	</div>
+{/if}
 
-	<main>
-		<slot />
-	</main>
-
-	<footer>
-		<p>visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to learn SvelteKit</p>
-	</footer>
-</div>
+<slot />
 
 <style>
-	.app {
-		display: flex;
-		flex-direction: column;
-		min-height: 100vh;
-	}
-
-	main {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		padding: 1rem;
-		width: 100%;
-		max-width: 64rem;
-		margin: 0 auto;
-		box-sizing: border-box;
-	}
-
-	footer {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		padding: 12px;
-	}
-
-	footer a {
-		font-weight: bold;
-	}
-
-	@media (min-width: 480px) {
-		footer {
-			padding: 12px 0;
-		}
+	:global(body) {
+		background-color: #36393f;
+		color: #dcddde;
+		font-family:
+			Whitney,
+			Helvetica Neue,
+			Helvetica,
+			Arial,
+			sans-serif;
 	}
 </style>
