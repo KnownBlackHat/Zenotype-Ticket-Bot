@@ -1,6 +1,7 @@
 import { redirect } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
 
-export async function load({ cookies, fetch, request }): Promise<void> {
+export const load: PageServerLoad = async ({ cookies, fetch, request }) => {
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
     if (!code) {
@@ -14,7 +15,7 @@ export async function load({ cookies, fetch, request }): Promise<void> {
         body: JSON.stringify({ code: code })
     });
     if (resp.status === 200) {
-        cookies.set('token', await resp.json(), { sameSite: 'Lax', secure: false, path: '/' });
+        cookies.set('token', await resp.json(), { sameSite: 'lax', secure: false, path: '/' });
         throw redirect(307, '/');
     }
     throw redirect(307, '/');

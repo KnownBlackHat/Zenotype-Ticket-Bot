@@ -1,7 +1,8 @@
 import { env } from '$env/dynamic/private';
 import { redirect } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
 
-export async function load({ fetch, cookies }) {
+export const load: PageServerLoad = async ({ fetch, cookies }) => {
     const token = cookies.get('token')
     if (token) {
         const user_info = await fetch('https://discord.com/api/v10/users/@me', {

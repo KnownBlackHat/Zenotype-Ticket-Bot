@@ -8,7 +8,8 @@ const config = {
 	kit: {
 		adapter: adapter(),
 		alias: {
-			$controllers: './src/controllers'
+			$controllers: './src/controllers',
+			$types: './$types'
 		}
 	}
 };

@@ -1,8 +1,9 @@
 import { error, json } from '@sveltejs/kit';
 import axios from 'axios';
 import { env } from '$env/dynamic/private';
+import type { RequestHandler } from './$types';
 
-export async function POST({ request }) {
+export const POST: RequestHandler = async ({ request }) => {
     const response = await request.json();
     const data = {
         client_id: env.CLIENT_ID,
@@ -18,7 +19,7 @@ export async function POST({ request }) {
     const token = `${res.data.token_type} ${res.data.access_token}`;
     const required_scope = ['identify', 'guilds.members.read', 'guilds'];
     const scopes = res.data.scope.split(' ');
-    scopes.forEach((v) => {
+    scopes.forEach((v: string) => {
         if (!required_scope.includes(v)) {
             throw error(405, 'Insufficient Scopes');
         }
