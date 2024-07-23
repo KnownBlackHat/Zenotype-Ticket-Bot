@@ -13,5 +13,4 @@ export const load: PageServerLoad = async ({ cookies }) => {
             { sameSite: 'lax', secure: false, path: '/' });
         return info;
     }
-
 }
