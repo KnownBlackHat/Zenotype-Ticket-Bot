@@ -26,3 +26,11 @@ class Guild(Base):
     messages = relationship(
         "Message", back_populates="guild", passive_deletes=True, lazy="selectin"
     )
+
+    role = relationship(
+        "Role",
+        back_populates="guild",
+        passive_deletes=True,
+        lazy="selectin",
+        uselist=False,
+    )
