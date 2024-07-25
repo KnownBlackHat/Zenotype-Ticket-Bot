@@ -11,3 +11,4 @@ class Client:
     token = os.getenv("BOT_TOKEN", "")
     log_file_name = "logs/ticket_bot.log"
     prefix = "~"
+    ipc_url = "http://localhost:8080"

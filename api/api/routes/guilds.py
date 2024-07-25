@@ -16,22 +16,37 @@ class Guilds(Root):
             for guild in result:
                 guilds.append(
                     {
-                        "guild": guild.guild,
+                        "id": str(guild.id),
                         "name": guild.name,
+                        "icon": guild.icon,
+                        "permissions": guild.permissions,
+                        "description": guild.description,
+                        "owner": guild.owner,
                     }
                 )
             return web.json_response(guilds)
 
     async def add(self, request: web.Request) -> web.Response:
         data = await request.json()
-        iguild = data.get("guild")
+        iguild = data.get("id")
         iname = data.get("name")
+        iicon = data.get("icon")
+        ipermissions = data.get("permissions")
+        idescription = data.get("description")
+        iowner = data.get("owner")
 
         if not all((iguild, iname)):
             return web.json_response({"success": False, "error": "missing arguments"})
 
         async with self.db.begin() as session:
-            sql_query = Guild(name=iname, guild=iguild)
+            sql_query = Guild(
+                name=iname,
+                guild=iguild,
+                icon=iicon,
+                description=idescription,
+                permissions=ipermissions,
+                owner=iowner,
+            )
             session.add(sql_query)
             await session.commit()
 
