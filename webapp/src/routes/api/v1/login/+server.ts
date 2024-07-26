@@ -23,7 +23,7 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
     const headers = {
         'Content-Type': 'application/x-www-form-urlencoded'
     };
-    const req = await fetch('https://discord.com/api/oauth2/token', { method: 'POST', headers, body: JSON.stringify(data) });
+    const req = await fetch('https://discord.com/api/oauth2/token', { method: 'POST', headers, body: new URLSearchParams(data) });
     const res: OauthPayload = await req.json()
     const token = `${res.token_type} ${res.access_token}`;
     const required_scope = ['identify', 'guilds.members.read', 'guilds', 'email'];

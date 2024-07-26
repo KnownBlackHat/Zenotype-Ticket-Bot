@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import type { Guild } from '$controllers/user';
+	import type { Guild } from '$controllers/ipc';
 
 	export let data: { data: Guild[] };
 </script>

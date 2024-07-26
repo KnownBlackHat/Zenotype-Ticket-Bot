@@ -1,12 +1,10 @@
 import logging
-from typing import Dict, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 import httpx
 from disnake.ext import commands
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from ticket_bot.constants import Client, Database
-from ticket_bot.database import Base
+from ticket_bot.constants import Client
 from ticket_bot.utils import extensions
 
 logger = logging.getLogger(__name__)
@@ -17,28 +15,12 @@ class TicketBot(commands.Bot):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.db_engine = create_async_engine(Database.uri)
-        self.db_session = async_sessionmaker(
-            self.db_engine, expire_on_commit=False, class_=AsyncSession
-        )
         logger.info("Ticket Bot got initialized!")
         self.http_session = httpx.AsyncClient()
-
-    @property
-    def db(self) -> async_sessionmaker[AsyncSession]:
-        """Alias of bot.db_session"""
-        return self.db_session
-
-    async def init_db(self) -> None:
-        """Init db"""
-        async with self.db_engine.begin() as session:
-            await session.run_sync(Base.metadata.create_all)
 
     async def close(self) -> None:
         """Close all sessions"""
         await super().close()
-        if self.db_engine:
-            await self.db_engine.dispose()
         if self.http_session:
             await self.http_session.aclose()
 
@@ -54,7 +36,7 @@ class TicketBot(commands.Bot):
         route: str,
         method: Literal["GET", "POST"] = "GET",
         data: Optional[Dict] = None,
-    ) -> httpx.Response:
+    ) -> Any:
         """
         Make a request to the IPC server
 
@@ -71,5 +53,9 @@ class TicketBot(commands.Bot):
         if method == "GET":
             resp = await self.http_session.get(Client.ipc_url + route)
         else:
-            resp = await self.http_session.post(Client.ipc_url + route, data=data)
-        return resp
+            resp = await self.http_session.post(
+                Client.ipc_url + route,
+                json=data,
+            )
+            resp.raise_for_status()
+        return resp.json()

@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import type { Panel } from '$controllers/ipc';
+	import { page } from '$app/stores';
 
 	export let data: { data: Panel[] };
 </script>
 
 PANEL HERE
-<button class="bg-blue-500" on:click={() => goto('create')}>
+<button class="bg-blue-500" on:click={() => goto(`${$page.url.pathname}/create`)}>
 	PLACE A CREATE PANEL BUTTON HERE
 </button>
 {#if data.data.length === 0}

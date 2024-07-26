@@ -16,12 +16,11 @@ class Guilds(Root):
             for guild in result:
                 guilds.append(
                     {
-                        "id": str(guild.id),
+                        "id": str(guild.guild),
                         "name": guild.name,
                         "icon": guild.icon,
-                        "permissions": guild.permissions,
                         "description": guild.description,
-                        "owner": guild.owner,
+                        "owner": str(guild.owner),
                     }
                 )
             return web.json_response(guilds)
@@ -31,7 +30,6 @@ class Guilds(Root):
         iguild = data.get("id")
         iname = data.get("name")
         iicon = data.get("icon")
-        ipermissions = data.get("permissions")
         idescription = data.get("description")
         iowner = data.get("owner")
 
@@ -44,10 +42,12 @@ class Guilds(Root):
                 guild=iguild,
                 icon=iicon,
                 description=idescription,
-                permissions=ipermissions,
                 owner=iowner,
             )
-            session.add(sql_query)
-            await session.commit()
+            try:
+                session.add(sql_query)
+                await session.commit()
+            except sqlalchemy.exc.IntegrityError:
+                ...
 
         return web.json_response({"success": True})

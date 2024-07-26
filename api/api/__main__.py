@@ -4,7 +4,7 @@ from aiohttp import web
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 
-from api.routes import Guilds, Messages, Panels, Root, Teams
+from api.routes import Guilds, Messages, Panels, Roles, Root, Teams
 
 app = web.Application()
 
@@ -29,6 +29,8 @@ app.add_routes(
         web.post("/teams/add", Teams().add),
         web.get("/messages", Teams().get),
         web.post("/messages/add", Teams().add),
+        web.get("/role", Roles().get),
+        web.post("/role/add", Roles().add),
     ]
 )
 

@@ -13,7 +13,6 @@ async def main():
     log.setup_logging()
     logger = logging.getLogger(Client.name)
     bot = TicketBot(intents=disnake.Intents.all(), command_prefix=Client.prefix)
-    await bot.init_db()
     try:
         bot.load_bot_extensions()
     except Exception:
@@ -31,7 +30,7 @@ async def main():
     try:
         await future
     except asyncio.CancelledError:
-        logger.warn("Received signal to terminate bot and event loop")
+        logger.warning("Received signal to terminate bot and event loop")
     finally:
         logger.warning("Closing bot")
         if bot.is_closed():

@@ -1,7 +1,7 @@
 import sqlalchemy
 from aiohttp import web
 
-from api.models import Guild
+from api.models import Guild, Role
 from api.utils import helpers
 
 from .root import Root
@@ -16,7 +16,7 @@ class Roles(Root):
             guild = await session.scalars(sql_query)
             guild = guild.one_or_none()
             if guild:
-                return web.json_response({"role": guild.role})
+                return web.json_response({"role": str(guild.role.role)})
             else:
                 return web.json_response({"role": None})
 
@@ -24,7 +24,7 @@ class Roles(Root):
     async def add(self, request: web.Request) -> web.Response:
         guild_id = int(request.query.get("guild", 1))
         data = await request.json()
-        irole = data.get("role")
+        irole = data.get("id")
 
         if not irole:
             return web.json_response({"success": False, "error": "missing parameters"})
@@ -36,6 +36,6 @@ class Roles(Root):
             if guild is None:
                 return web.json_response({"success": False})
 
-            guild.role = irole
+            guild.role = Role(role=irole)
             await session.commit()
             return web.json_response({"success": True})

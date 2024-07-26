@@ -1,5 +1,15 @@
-import { env } from "$env/dynamic/private";
 import { redirect } from "@sveltejs/kit";
+import IPCController, { type Guild } from "./ipc";
+
+export interface GuildMember {
+    user: object;
+    nick: string;
+    avatar: string;
+    roles: string[];
+    joined_at: string;
+    deaf: boolean;
+    mute: boolean;
+}
 
 export interface UserInfo {
     id: BigInteger;
@@ -11,34 +21,20 @@ export interface UserInfo {
     accent_color?: string;
 }
 
-export interface Guild {
-    id: BigInteger;
-    icon: string;
-    permissions: string;
-    name: string;
-    description?: string;
-    owner: boolean;
-    owner_id: BigInteger
-}
+
 
 class UserController {
-    constructor(public token: string) {
-        this.token = token;
-    }
+    #token: string;
+    #ipc: IPCController;
 
-    async #ireq(route: string) {
-        const req = await fetch(`http://${env.IPC_DOMAIN}${route}`, {
-            headers: { Authorization: this.token }
-        });
-        if (req.status !== 200) {
-            throw redirect(307, '/login');
-        }
-        return await req.json()
+    constructor(public token: string) {
+        this.#token = token;
+        this.#ipc = new IPCController();
     }
 
     async #req(route: string) {
         const req = await fetch(`https://discord.com/api/v10${route}`, {
-            headers: { Authorization: this.token }
+            headers: { Authorization: this.#token }
         });
         if (req.status !== 200) {
             throw redirect(307, '/login');
@@ -51,9 +47,24 @@ class UserController {
         return user;
     }
 
-    public async getGuild() {
+    public async getFinalGuild() {
         const guilds: Guild[] = await this.#req('/users/@me/guilds');
-        return { data: guilds };
+        const ipcGuilds: Guild[] = await this.#ipc.getGuild()
+        const availableGuild = guilds.filter(item => ipcGuilds.some(item2 => item2.id == item.id))
+        return availableGuild;
+    }
+
+    public async getGuildMember(guildId: string) {
+        const guildMember: GuildMember = await this.#req(`/users/@me/guilds/${guildId}/member`);
+        return guildMember;
+    }
+
+
+    public async validate(guildId: string): Promise<boolean> {
+        const role = await this.#ipc.getRole(guildId);
+        const guildMember = await this.getGuildMember(guildId);
+        if (guildMember.roles.includes(role)) { return true };
+        return false;
     }
 
 }
