@@ -5,7 +5,7 @@ import UserController from "$controllers/user";
 export const load: PageServerLoad = async ({ cookies }) => {
     const token = cookies.get('token')
     if (!token) {
-        throw redirect(307, '/login')
+        redirect(307, '/login')
     } else {
         const user = new UserController(token);
         const info = await user.getUser()

@@ -3,14 +3,17 @@ import UserController from "$controllers/user";
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ params, cookies }) => {
+export const load: PageServerLoad = ({ params, cookies }) => {
     const ipc = new IPCController();
     const token = cookies.get('token');
     const userController = new UserController(token ?? '');
-    const validation = await userController.validate(params.serverId);
-    if (!validation)
-        throw error(403, 'validation failed')
+    const panels = userController.validate(params.serverId).then((valid) => {
 
-    const panels = await ipc.getPanels(params.serverId)
-    return { data: panels }
+        if (!valid)
+            throw error(403, 'validation failed')
+
+        return ipc.getPanels(params.serverId)
+    });
+
+    return { panels };
 }

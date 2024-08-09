@@ -12,14 +12,29 @@ export interface Guild {
 
 export interface Panel {
     title: string;
-    thumbnail: string;
-    image: string;
     description: string;
+    color: string;
+    channel: BigInteger;
+    disable_panel: boolean;
+    button_color: string;
+    button_text: string;
+    button_emoji: string;
+    mention_on_open: string;
+    support_team: BigInteger[];
     category: BigInteger;
+    naming_scheme: string;
+    large_image_url: string;
+    small_image_url: string;
+    wlcm_title: string;
+    wlcm_description: string;
+    wlcm_color: string;
+    author_name: string;
+    author_icon_url?: string;
+    role: BigInteger;
 }
 
 export default class IPCController {
-    async #req(route: string, method: "GET" | "POST" = "GET", data?: string) {
+    async #req(route: string, method: "GET" | "POST" = "GET", data?: Record<string, unknown>) {
         const options: RequestInit = {
             method, headers: {
                 'Content-Type': 'application/json',
@@ -31,7 +46,7 @@ export default class IPCController {
 
         const req = await fetch(`http://${env.IPC_DOMAIN}${route}`, options);
         if (req.status !== 200) {
-            throw redirect(307, '/login');
+            redirect(307, '/login');
         }
         return await req.json()
     }
@@ -40,6 +55,12 @@ export default class IPCController {
         const panels: Panel[] = await this.#req(`/panels?guild=${guildId}`);
         return panels;
     }
+
+    public async addPanel(guildId: string, panel: Panel): Promise<{ success: string, error: string }> {
+        const response: { success: string, error: string } = await this.#req(`/panels/add?guild=${guildId}`, "POST", { ...panel });
+        return response;
+    }
+
 
     public async getRole(guildId: string): Promise<string> {
         const role: { role: string } = await this.#req(`/role?guild=${guildId}`);

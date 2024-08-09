@@ -37,7 +37,7 @@ class UserController {
             headers: { Authorization: this.#token }
         });
         if (req.status !== 200) {
-            throw redirect(307, '/login');
+            redirect(307, '/login');
         }
         return await req.json()
     }

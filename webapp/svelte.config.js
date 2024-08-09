@@ -9,6 +9,7 @@ const config = {
 		adapter: adapter(),
 		alias: {
 			$controllers: './src/controllers',
+			$components: './src/components',
 			$types: './$types'
 		}
 	}

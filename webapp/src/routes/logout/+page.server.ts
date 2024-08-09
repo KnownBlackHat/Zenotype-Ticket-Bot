@@ -21,5 +21,5 @@ export const load: PageServerLoad = async ({ cookies, fetch }) => {
         if (rep.status === 200) cookies.delete('token', { path: '/' });
         cookies.delete('user_id', { path: '/' });
     }
-    throw redirect(301, '/login')
+    redirect(301, '/login')
 }
