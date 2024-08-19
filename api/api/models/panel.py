@@ -13,7 +13,7 @@ class Panel(Base):
     title: Mapped[str] = mapped_column(sqlalchemy.String)
     description: Mapped[str] = mapped_column(sqlalchemy.Text)
     color: Mapped[str] = mapped_column(sqlalchemy.Text)
-    disable_panel: Mapped[bool] = mapped_column(sqlalchemy.Boolean)
+    disable_panel: Mapped[bool] = mapped_column(sqlalchemy.Boolean, default=False)
 
     # Panel Button
     button_color: Mapped[str] = mapped_column(sqlalchemy.Text)
@@ -29,13 +29,13 @@ class Panel(Base):
     naming_scheme = mapped_column(sqlalchemy.String)
 
     # Images
-    large_image: Mapped[str] = mapped_column(sqlalchemy.String)
-    small_image: Mapped[str] = mapped_column(sqlalchemy.String)
+    large_image: Mapped[str] = mapped_column(sqlalchemy.String, nullable=True)
+    small_image: Mapped[str] = mapped_column(sqlalchemy.String, nullable=True)
 
     # Welcome Message
-    wlcm_title: Mapped[str] = mapped_column(sqlalchemy.String)
-    wlcm_description: Mapped[str] = mapped_column(sqlalchemy.String)
-    wlcm_color: Mapped[str] = mapped_column(sqlalchemy.String)
+    wlcm_title: Mapped[str] = mapped_column(sqlalchemy.String, nullable=True)
+    wlcm_description: Mapped[str] = mapped_column(sqlalchemy.String, nullable=True)
+    wlcm_color: Mapped[str] = mapped_column(sqlalchemy.String, nullable=True)
 
     # Author
     author_name: Mapped[str] = mapped_column(sqlalchemy.String)
@@ -49,7 +49,7 @@ class Panel(Base):
         sqlalchemy.DateTime, default=datetime.now(UTC)
     )
     updatedAt: Mapped[int] = mapped_column(
-        sqlalchemy.DateTime, onupdate=datetime.now(UTC)
+        sqlalchemy.DateTime, onupdate=datetime.now(UTC), nullable=True
     )
 
     # Relationship

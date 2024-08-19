@@ -5,6 +5,11 @@
 	export let data: { guilds: Promise<Guild[]> };
 </script>
 
+{#if $page.url.searchParams.get('msg')}
+	<div class="bg-red-500 text-white text-center rounded-md p-2 m-2">
+		Error: {$page.url.searchParams.get('msg')}
+	</div>
+{/if}
 {#await data.guilds}
 	<div class="grid md:grid-cols-5 md:gap-5 mx-2">
 		{#each Array(10) as _}

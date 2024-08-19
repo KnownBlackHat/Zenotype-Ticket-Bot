@@ -18,8 +18,10 @@ export const load: PageServerLoad = async ({ cookies, fetch }) => {
             },
             body: new URLSearchParams(payload)
         });
-        if (rep.status === 200) cookies.delete('token', { path: '/' });
-        cookies.delete('user_id', { path: '/' });
+        if (rep.status === 200) {
+            cookies.delete('token', { path: '/' });
+            cookies.delete('jtkn', { path: '/' });
+        }
     }
-    redirect(301, '/login')
+    throw redirect(301, '/login')
 }

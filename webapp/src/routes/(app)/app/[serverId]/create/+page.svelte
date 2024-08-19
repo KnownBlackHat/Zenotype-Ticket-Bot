@@ -1,4 +1,7 @@
 <script lang="ts">
+	import type { ActionData } from './$types';
+
+	export let form: ActionData;
 	interface FormFields {
 		display: string;
 		name: string;
@@ -25,17 +28,17 @@
 			{ display: 'Naming Scheme', name: 'naming_scheme' }
 		],
 		Images: [
-			{ display: 'Large Image Url', name: 'large_image_url' },
-			{ display: 'Small Image Url', name: 'small_image_url' }
+			{ display: 'Large Image Url (Optional)', name: 'large_image(optional)' },
+			{ display: 'Small Image Url (Optional)', name: 'small_image(optional)' }
 		],
 		Welcome_Message: [
-			{ display: 'Title', name: 'wlcm_title' },
-			{ display: 'Description', name: 'wlcm_description' },
-			{ display: 'Color', name: 'wlcm_color' }
+			{ display: 'Title (Optional)', name: 'wlcm_title(optional)' },
+			{ display: 'Description (Optional)', name: 'wlcm_description(optional)' },
+			{ display: 'Color (Optional)', name: 'wlcm_color(optional)' }
 		],
 		Author: [
 			{ display: 'Name', name: 'author_name' },
-			{ display: 'Icon Url (Optional)', name: 'author_icon_url' }
+			{ display: 'Icon Url (Optional)', name: 'author_url(optional)' }
 		],
 		Access_Control: [{ display: 'Roles', name: 'roles' }]
 	};
@@ -43,7 +46,14 @@
 
 <div class="flex">
 	<div class="container mx-auto p-4 pt-6 md:p-6 lg:p-12">
-		<form method="POST">
+		{#if form?.success === false}
+			<div class="bg-red-600 rounded-md p-2 m-2 text-center font-bold">Error: {form?.error}</div>
+		{:else if form?.success === true}
+			<div class="bg-green-600 rounded-md p-2 m-2 text-center font-bold">
+				Panel Created Successfully!
+			</div>
+		{/if}
+		<form method="POST" action="?/panelSubmit">
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{#each Object.entries(obj) as [key, ent]}
 					<div id="embed" class="bg-black p-4 border-2 border-white rounded-lg shadow-md">

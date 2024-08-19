@@ -7,16 +7,19 @@
 </script>
 
 <button
-	class="bg-green-500 p-2 border-2 border-white rounded-md mx-2"
+	class="bg-green-500 p-2 border-2 border-white rounded-md m-2"
 	on:click={() => goto(`${$page.url.pathname}/create`)}
 >
 	Create Panel
 </button>
+<hr />
+<h1 class="text-center underline text-4xl m-4">Panels</h1>
 {#await data.panels}
 	<div class="grid md:grid-cols-5 md:gap-5 mx-2">
 		{#each Array(10) as _}
 			<div class="bg-black animate-pulse">
 				<div />
+				Panel is loading
 				<div />
 			</div>
 		{/each}
@@ -29,11 +32,24 @@
 			</div>
 		</div>
 	{:else}
-		<div class="grid md:grid-cols-5 md:gap-5 mx-2">
+		<div class="grid md:grid-cols-5 md:gap-5 m-2 align-center text-center">
 			{#each panels as panel}
-				{panel.title}
-				{panel.description}
+				<a
+					tabindex={panel.id}
+					role="button"
+					class="bg-blue-600 hover:bg-black cursor-grab rounded-md border-white border-2 p-2 w-[15rem] h-[5rem]"
+					href="{$page.url.pathname}/{panel.id}"
+				>
+					<div class="flex flex-col">
+						<span>Id: {panel.id}</span>
+						<span>
+							Title: {panel.title}
+						</span>
+					</div>
+				</a>
 			{/each}
 		</div>
 	{/if}
+{:catch e}
+	{e}
 {/await}

@@ -5,7 +5,7 @@ export const load: PageServerLoad = async ({ cookies, fetch, request }) => {
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
     if (!code) {
-        redirect(307, '/');
+        throw redirect(307, '/app');
     }
     const resp = await fetch('/api/v1/login', {
         method: 'POST',
@@ -15,8 +15,12 @@ export const load: PageServerLoad = async ({ cookies, fetch, request }) => {
         body: JSON.stringify({ code: code })
     });
     if (resp.status === 200) {
-        cookies.set('token', await resp.json(), { sameSite: 'lax', secure: false, path: '/' });
-        redirect(307, '/');
+        cookies.set('token', await resp.json(), {
+            path: '/',
+            httpOnly: true,
+            secure: false
+        });
+        throw redirect(307, '/app');
     }
-    redirect(307, '/');
+    throw redirect(307, '/app');
 }

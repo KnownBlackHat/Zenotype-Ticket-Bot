@@ -9,7 +9,6 @@
 	>
 		<svg
 			version="1.1"
-			title="Center Loader"
 			class="h-80"
 			id="L4"
 			xmlns="http://www.w3.org/2000/svg"

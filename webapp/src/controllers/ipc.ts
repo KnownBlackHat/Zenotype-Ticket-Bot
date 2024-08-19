@@ -1,5 +1,4 @@
 import { env } from "$env/dynamic/private";
-import { redirect } from "@sveltejs/kit";
 
 
 export interface Guild {
@@ -11,6 +10,7 @@ export interface Guild {
 }
 
 export interface Panel {
+    id: number;
     title: string;
     description: string;
     color: string;
@@ -45,9 +45,6 @@ export default class IPCController {
         }
 
         const req = await fetch(`http://${env.IPC_DOMAIN}${route}`, options);
-        if (req.status !== 200) {
-            redirect(307, '/login');
-        }
         return await req.json()
     }
 
@@ -56,8 +53,8 @@ export default class IPCController {
         return panels;
     }
 
-    public async addPanel(guildId: string, panel: Panel): Promise<{ success: string, error: string }> {
-        const response: { success: string, error: string } = await this.#req(`/panels/add?guild=${guildId}`, "POST", { ...panel });
+    public async addPanel(guildId: string, panel: Panel): Promise<{ success: boolean, error: string }> {
+        const response: { success: boolean, error: string } = await this.#req(`/panels/add?guild=${guildId}`, "POST", { ...panel });
         return response;
     }
 

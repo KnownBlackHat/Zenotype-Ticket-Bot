@@ -1,4 +1,3 @@
-import { redirect } from "@sveltejs/kit";
 import IPCController, { type Guild } from "./ipc";
 
 export interface GuildMember {
@@ -37,25 +36,27 @@ class UserController {
             headers: { Authorization: this.#token }
         });
         if (req.status !== 200) {
-            redirect(307, '/login');
+            console.log("Access Denied By User Controller")
+            return null
         }
         return await req.json()
     }
 
     public async getUser() {
-        const user: UserInfo = await this.#req('/users/@me');
+        const user: UserInfo | null = await this.#req('/users/@me');
         return user;
     }
 
     public async getFinalGuild() {
-        const guilds: Guild[] = await this.#req('/users/@me/guilds');
+        const guilds: Guild[] | null = await this.#req('/users/@me/guilds');
+        if (!guilds) return guilds
         const ipcGuilds: Guild[] = await this.#ipc.getGuild()
         const availableGuild = guilds.filter(item => ipcGuilds.some(item2 => item2.id == item.id))
         return availableGuild;
     }
 
     public async getGuildMember(guildId: string) {
-        const guildMember: GuildMember = await this.#req(`/users/@me/guilds/${guildId}/member`);
+        const guildMember: GuildMember | null = await this.#req(`/users/@me/guilds/${guildId}/member`);
         return guildMember;
     }
 
@@ -63,7 +64,7 @@ class UserController {
     public async validate(guildId: string): Promise<boolean> {
         const role = await this.#ipc.getRole(guildId);
         const guildMember = await this.getGuildMember(guildId);
-        if (guildMember.roles.includes(role)) { return true };
+        if (guildMember?.roles.includes(role)) { return true };
         return false;
     }
 
