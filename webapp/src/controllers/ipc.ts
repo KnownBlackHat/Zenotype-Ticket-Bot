@@ -33,6 +33,16 @@ export interface Panel {
     role: BigInteger;
 }
 
+export interface Message {
+    "userId": BigInteger,
+    "userName": string,
+    "channel": BigInteger
+    "message": string,
+    "createdAt": object,
+    "updatedAt": object
+
+}
+
 export default class IPCController {
     async #req(route: string, method: "GET" | "POST" = "GET", data?: Record<string, unknown>) {
         const options: RequestInit = {
@@ -53,6 +63,17 @@ export default class IPCController {
         return panels;
     }
 
+    public async findPanels(id: number): Promise<Panel> {
+        const panels: Panel = await this.#req(`/panels/find?panel=${id}`);
+        return panels;
+    }
+
+    public async findPanelMessage(id: number): Promise<Message[]> {
+        const messages: Message[] = await this.#req(`/messages?panel=${id}`);
+        return messages;
+    }
+
+
     public async addPanel(guildId: string, panel: Panel): Promise<{ success: boolean, error: string }> {
         const response: { success: boolean, error: string } = await this.#req(`/panels/add?guild=${guildId}`, "POST", { ...panel });
         return response;
@@ -68,7 +89,5 @@ export default class IPCController {
         const guilds: Guild[] = await this.#req('/guilds');
         return guilds;
     }
-
-
 
 }

@@ -1,53 +1,76 @@
 import sqlalchemy
 from aiohttp import web
 
-from api.models import Guild, Message
-from api.utils import helpers
+from api.models import Message, Panel
 
 from .root import Root
 
 
 class Messages(Root):
-    @helpers.ensure_guild
     async def get(self, request: web.Request) -> web.Response:
-        guild_id = int(request.query.get("guild", 1))
+        panel_id = request.query.get("panel")
+        if panel_id is None:
+            return web.json_response({"success": False, "error": "missing panel query"})
+        try:
+            panel_id = int(panel_id)
+        except TypeError:
+            return web.json_response(
+                {
+                    "success": False,
+                    "error": "panel query invalid data type, expected int",
+                }
+            )
         response = []
         async with self.db.begin() as session:
-            sql_query = sqlalchemy.select(Guild).where(Guild.guild == guild_id)
-            guild = await session.scalars(sql_query)
-            guild = guild.one_or_none()
-            response = []
-            if guild:
-                for messages in guild.messages:
-                    response.append(
-                        {
-                            "userId": messages.userId,
-                            "userName": messages.userName,
-                            "channel": messages.channel,
-                            "message": messages.message,
-                            "createdAt": messages.createdAt,
-                            "updatedAt": messages.updatedAt,
-                        }
-                    )
+            sql_query = sqlalchemy.select(Panel).where(Panel.id == panel_id)
+            panel = await session.scalars(sql_query)
+            panel = panel.one_or_none()
+            if panel is None:
+                return web.json_response({"success": False, "error": "Panel not found"})
+            for messages in panel.messages:
+                response.append(
+                    {
+                        "userId": messages.userId,
+                        "userName": messages.userName,
+                        "channel": messages.channel,
+                        "message": messages.message,
+                        "createdAt": messages.createdAt.timestamp(),
+                        "updatedAt": (
+                            messages.updatedAt.timestamp()
+                            if messages.updatedAt
+                            else None
+                        ),
+                    }
+                )
         return web.json_response(response)
 
-    @helpers.ensure_guild
     async def add(self, request: web.Request) -> web.Response:
-        guild_id = int(request.query.get("guild", 1))
-        iuserId = request.query.get("userId")
-        iuserName = request.query.get("userName")
-        ichannel = request.query.get("channel")
-        imessage = request.query.get("message")
-        ipanel = request.query.get("panel")
-        if not all((iuserId, iuserName, ichannel, imessage, ipanel)):
+        panel_id = request.query.get("panel")
+        if panel_id is None:
+            return web.json_response({"success": False, "error": "missing panel query"})
+        try:
+            panel_id = int(panel_id)
+        except TypeError:
+            return web.json_response(
+                {
+                    "success": False,
+                    "error": "panel query invalid data type, expected int",
+                }
+            )
+        data = await request.json()
+        iuserId = data.get("userId")
+        iuserName = data.get("userName")
+        ichannel = data.get("channel")
+        imessage = data.get("message")
+        if not all((iuserId, iuserName, ichannel, imessage)):
             return web.json_response({"success": False, "error": "missing parameters"})
         async with self.db.begin() as session:
-            sql_query = sqlalchemy.select(Guild).where(Guild.guild == guild_id)
-            guild = await session.scalars(sql_query)
-            guild = guild.one_or_none()
-            if guild is None:
-                return web.json_response({"success": False})
-            guild.messages.append(
+            sql_query = sqlalchemy.select(Panel).where(Panel.id == panel_id)
+            panel = await session.scalars(sql_query)
+            panel = panel.one_or_none()
+            if panel is None:
+                return web.json_response({"success": False, "error": "Panel not found"})
+            panel.messages.append(
                 Message(
                     userId=iuserId,
                     userName=iuserName,

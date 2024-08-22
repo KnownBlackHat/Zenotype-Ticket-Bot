@@ -9,11 +9,6 @@ from .base import Base
 class Message(Base):
     __tablename__ = "messages"
 
-    guild_id: Mapped[int] = mapped_column(
-        sqlalchemy.ForeignKey("guilds.id", ondelete="CASCADE"), index=True
-    )
-    guild = relationship("Guild", back_populates="messages")
-
     userId: Mapped[int] = mapped_column(sqlalchemy.BigInteger)
     userName: Mapped[str] = mapped_column(sqlalchemy.String)
     channel: Mapped[int] = mapped_column(sqlalchemy.BigInteger)
@@ -26,3 +21,9 @@ class Message(Base):
     updatedAt: Mapped[int] = mapped_column(
         sqlalchemy.DateTime, onupdate=datetime.now(UTC), nullable=True
     )
+
+    # Relationship
+    panel_id: Mapped[int] = mapped_column(
+        sqlalchemy.ForeignKey("panels.id", ondelete="CASCADE"), index=True
+    )
+    panel = relationship("Panel", back_populates="messages")

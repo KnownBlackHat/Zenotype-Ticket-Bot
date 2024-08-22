@@ -24,13 +24,16 @@ app.add_routes(
         web.get("/guilds", Guilds().get),
         web.post("/guilds/add", Guilds().add),
         web.get("/panels", Panels().get),
+        web.get("/panels/find", Panels().find),
         web.post("/panels/add", Panels().add),
         web.get("/teams", Teams().get),
         web.post("/teams/add", Teams().add),
-        web.get("/messages", Teams().get),
-        web.post("/messages/add", Teams().add),
+        web.get("/messages", Messages().get),
+        web.post("/messages/add", Messages().add),
         web.get("/role", Roles().get),
         web.post("/role/add", Roles().add),
+        # web.get("/tickets", Tickets().add),
+        # web.post("/tickets/add", Tickets().add),
     ]
 )
 

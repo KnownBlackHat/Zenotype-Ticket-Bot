@@ -1,30 +1,31 @@
 <script lang="ts">
-	export let data = { data: [1, 2, 3] };
+	import type { PageServerData } from './$types';
+
+	export let data: PageServerData;
 </script>
 
-PUT UP TICKET HERE
-
-{#if data.data.length === 0}
-	<div class="flex items-center justify-center h-screen">
-		<div class="bg-black text-2xl font-bold py-40 px-48 rounded-lg">
-			You are not in any of the configured server
+{#await data.messages}
+	Loading messages
+{:then messages}
+	{#if messages.length === 0}
+		<div class="flex items-center justify-center h-screen">
+			<div class="bg-black text-2xl font-bold py-40 px-48 rounded-lg">
+				No messages found in this panel
+			</div>
 		</div>
-	</div>
-{:else}
-	<div class="grid md:grid-cols-5 md:gap-5 mx-2">
-		{#each data.data as guild}
-			<a href="{$page.url.pathname}/{guild.id}">
+	{:else}
+		<div class="grid grid-cols-5 gap-5 mx-2">
+			{#each messages as message}
 				<div class="text-center border-white border-2 overflow-auto rounded-md">
-					<div class="server-name font-bold sticky top-0 bg-black">{guild.name}</div>
 					<img
-						class="w-full object-cover"
-						alt={guild.icon}
-						src={guild.icon
-							? `//cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
-							: '//global-img.gamergen.com/logo-gg-discord-1_0000932383.jpg'}
+						class="rounded-full"
+						alt={message.userName}
+						src="//global-img.gamergen.com/logo-gg-discord-1_0000932383.jpg"
 					/>
+					<div class="server-name font-bold sticky top-0 bg-black">{message.userName}</div>
+					<div class="server-name font-bold sticky top-0 bg-black">{message.message}</div>
 				</div>
-			</a>
-		{/each}
-	</div>
-{/if}
+			{/each}
+		</div>
+	{/if}
+{/await}

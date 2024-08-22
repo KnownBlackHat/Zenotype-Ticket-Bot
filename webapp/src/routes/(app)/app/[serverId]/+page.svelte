@@ -17,10 +17,13 @@
 {#await data.panels}
 	<div class="grid md:grid-cols-5 md:gap-5 mx-2">
 		{#each Array(10) as _}
-			<div class="bg-black animate-pulse">
-				<div />
-				Panel is loading
-				<div />
+			<div
+				class="bg-blue-600 flex flex-col justify-center items-center hover:bg-black cursor-grab rounded-md border-white border-2 p-2 w-[15rem] h-[5rem] animate-pulse"
+			>
+				<div class="flex flex-col">
+					<div class="animate-pulse rounded-md bg-gray-300 m-1 h-4 w-[200px]" />
+					<div class="animate-pulse rounded-md bg-gray-300 m-1 h-4 w-[200px]" />
+				</div>
 			</div>
 		{/each}
 	</div>
@@ -34,19 +37,21 @@
 	{:else}
 		<div class="grid md:grid-cols-5 md:gap-5 m-2 align-center text-center">
 			{#each panels as panel}
-				<a
-					tabindex={panel.id}
-					role="button"
+				<div
 					class="bg-blue-600 hover:bg-black cursor-grab rounded-md border-white border-2 p-2 w-[15rem] h-[5rem]"
-					href="{$page.url.pathname}/{panel.id}"
 				>
-					<div class="flex flex-col">
+					<a
+						tabindex={panel.id}
+						role="button"
+						class="flex flex-col"
+						href="{$page.url.pathname}/{panel.id}"
+					>
 						<span>Id: {panel.id}</span>
 						<span>
 							Title: {panel.title}
 						</span>
-					</div>
-				</a>
+					</a>
+				</div>
 			{/each}
 		</div>
 	{/if}

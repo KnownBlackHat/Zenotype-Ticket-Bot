@@ -59,3 +59,5 @@ class Panel(Base):
         sqlalchemy.ForeignKey("guilds.id", ondelete="CASCADE"), index=True
     )
     guild = relationship("Guild", back_populates="panels")
+
+    messages = relationship("Message", back_populates="panel", lazy="selectin")

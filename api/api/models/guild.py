@@ -22,10 +22,6 @@ class Guild(Base):
         "Team", back_populates="guild", passive_deletes=True, lazy="selectin"
     )
 
-    messages = relationship(
-        "Message", back_populates="guild", passive_deletes=True, lazy="selectin"
-    )
-
     role = relationship(
         "Role",
         back_populates="guild",

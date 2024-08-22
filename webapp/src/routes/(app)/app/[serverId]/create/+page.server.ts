@@ -9,7 +9,7 @@ const panelSubmit: Action = async ({ request }) => {
     const panel: object = {};
     for (const [key, value] of data) {
         if (!key.endsWith("(optional)") && !value) {
-            return { success: false, error: `${key} was not defined` };
+            return { success: false, error: `${key} was not defined` }; // FIX: Use invalid for error in forms
         }
 
         const nkey = key.replace("(optional)", "");

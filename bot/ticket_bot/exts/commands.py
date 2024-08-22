@@ -38,6 +38,14 @@ class Commands(commands.Cog):
     async def role_add(
         self, inter: disnake.GuildCommandInteraction, role: disnake.Role
     ) -> None:
+        """
+        Sets required role to access dashboard
+
+        Parameters:
+        ----------
+        role: The role to be set as required role
+        """
+
         data = {"id": str(role.id)}
         res = await self.bot.request(
             f"/role/add?guild={inter.guild_id}", "POST", data=data
@@ -45,6 +53,22 @@ class Commands(commands.Cog):
         if not res.get("success"):
             raise commands.CommandError(f"IPC Error in role/add {res}")
         await inter.send(f"{role.mention} is now new role for dashboard access")
+
+    @commands.slash_command(name="create_panel")
+    async def create_panel(self, inter: disnake.GuildCommandInteraction, panel_id: int):
+        """
+        Creates a new panel
+
+        Parameters:
+        ----------
+        panel_id: The id of the panel
+        """
+        raise NotImplemented
+
+        res = await self.bot.request(f"/panels?guild={inter.guild_id}", "GET")
+        if not res.get("success"):
+            raise commands.CommandError(f"IPC Error in panel/add {res}")
+        await inter.send(f"Panel with id {panel_id} created")
 
 
 def setup(bot: TicketBot):
