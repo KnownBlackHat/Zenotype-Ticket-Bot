@@ -1,33 +1,37 @@
 import sqlalchemy
 from aiohttp import web
 
-from api.models import Message, Panel
+from api.models import Message, Ticket
 
 from .root import Root
 
 
 class Messages(Root):
     async def get(self, request: web.Request) -> web.Response:
-        panel_id = request.query.get("panel")
-        if panel_id is None:
-            return web.json_response({"success": False, "error": "missing panel query"})
+        ticket_id = request.query.get("ticket")
+        if ticket_id is None:
+            return web.json_response(
+                {"success": False, "error": "missing ticket query"}
+            )
         try:
-            panel_id = int(panel_id)
+            ticket_id = int(ticket_id)
         except TypeError:
             return web.json_response(
                 {
                     "success": False,
-                    "error": "panel query invalid data type, expected int",
+                    "error": "ticket query invalid data type, expected int",
                 }
             )
         response = []
         async with self.db.begin() as session:
-            sql_query = sqlalchemy.select(Panel).where(Panel.id == panel_id)
-            panel = await session.scalars(sql_query)
-            panel = panel.one_or_none()
-            if panel is None:
-                return web.json_response({"success": False, "error": "Panel not found"})
-            for messages in panel.messages:
+            sql_query = sqlalchemy.select(Ticket).where(Ticket.id == ticket_id)
+            ticket = await session.scalars(sql_query)
+            ticket = ticket.one_or_none()
+            if ticket is None:
+                return web.json_response(
+                    {"success": False, "error": "Ticket not found"}
+                )
+            for messages in ticket.messages:
                 response.append(
                     {
                         "userId": messages.userId,
@@ -45,16 +49,18 @@ class Messages(Root):
         return web.json_response(response)
 
     async def add(self, request: web.Request) -> web.Response:
-        panel_id = request.query.get("panel")
-        if panel_id is None:
-            return web.json_response({"success": False, "error": "missing panel query"})
+        ticket_id = request.query.get("ticket")
+        if ticket_id is None:
+            return web.json_response(
+                {"success": False, "error": "missing ticket query"}
+            )
         try:
-            panel_id = int(panel_id)
+            ticket_id = int(ticket_id)
         except TypeError:
             return web.json_response(
                 {
                     "success": False,
-                    "error": "panel query invalid data type, expected int",
+                    "error": "Ticket query invalid data type, expected int",
                 }
             )
         data = await request.json()
@@ -65,12 +71,14 @@ class Messages(Root):
         if not all((iuserId, iuserName, ichannel, imessage)):
             return web.json_response({"success": False, "error": "missing parameters"})
         async with self.db.begin() as session:
-            sql_query = sqlalchemy.select(Panel).where(Panel.id == panel_id)
-            panel = await session.scalars(sql_query)
-            panel = panel.one_or_none()
-            if panel is None:
-                return web.json_response({"success": False, "error": "Panel not found"})
-            panel.messages.append(
+            sql_query = sqlalchemy.select(Ticket).where(Ticket.id == ticket_id)
+            ticket = await session.scalars(sql_query)
+            ticket = ticket.one_or_none()
+            if ticket is None:
+                return web.json_response(
+                    {"success": False, "error": "Ticket not found"}
+                )
+            ticket.messages.append(
                 Message(
                     userId=iuserId,
                     userName=iuserName,

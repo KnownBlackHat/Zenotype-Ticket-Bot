@@ -60,4 +60,4 @@ class Panel(Base):
     )
     guild = relationship("Guild", back_populates="panels")
 
-    messages = relationship("Message", back_populates="panel", lazy="selectin")
+    tickets = relationship("Ticket", back_populates="panel", lazy="selectin")

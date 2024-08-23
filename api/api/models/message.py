@@ -23,7 +23,7 @@ class Message(Base):
     )
 
     # Relationship
-    panel_id: Mapped[int] = mapped_column(
-        sqlalchemy.ForeignKey("panels.id", ondelete="CASCADE"), index=True
+    ticket_id: Mapped[int] = mapped_column(
+        sqlalchemy.ForeignKey("tickets.id", ondelete="CASCADE"), index=True
     )
-    panel = relationship("Panel", back_populates="messages")
+    ticket = relationship("Ticket", back_populates="messages")

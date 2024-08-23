@@ -34,13 +34,17 @@ export interface Panel {
 }
 
 export interface Message {
-    "userId": BigInteger,
-    "userName": string,
-    "channel": BigInteger
-    "message": string,
-    "createdAt": object,
-    "updatedAt": object
+    userId: BigInteger,
+    userName: string,
+    channel: BigInteger
+    message: string,
+    createdAt: object,
+    updatedAt: object
+}
 
+export interface Ticket {
+    id: number;
+    userId: BigInteger;
 }
 
 export default class IPCController {
@@ -68,11 +72,15 @@ export default class IPCController {
         return panels;
     }
 
-    public async findPanelMessage(id: number): Promise<Message[]> {
-        const messages: Message[] = await this.#req(`/messages?panel=${id}`);
+    public async findTicketMessage(id: number): Promise<Message[]> {
+        const messages: Message[] = await this.#req(`/messages?ticket=${id}`);
         return messages;
     }
 
+    public async getTickets(id: number): Promise<Ticket[]> {
+        const tickets: Ticket[] = await this.#req(`/tickets?panel=${id}`);
+        return tickets;
+    }
 
     public async addPanel(guildId: string, panel: Panel): Promise<{ success: boolean, error: string }> {
         const response: { success: boolean, error: string } = await this.#req(`/panels/add?guild=${guildId}`, "POST", { ...panel });

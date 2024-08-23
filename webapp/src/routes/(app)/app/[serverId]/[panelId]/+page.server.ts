@@ -3,19 +3,12 @@ import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = ({ params }) => {
     const ipc = new IPCController();
-    // const findPanel = async () => {
-    //     const panel = await ipc.findPanels(Number(params.panelId));
-    //     return panel
-
-    // }
-
-    const fetchMessages = async () => {
-        const messages = await ipc.findPanelMessage(Number(params.panelId));
-        return messages;
+    const fetchTickets = async () => {
+        const tickets = await ipc.getTickets(Number(params.panelId))
+        return tickets
     }
 
     return {
-        // panel: findPanel()
-        messages: fetchMessages()
+        tickets: fetchTickets()
     }
 }

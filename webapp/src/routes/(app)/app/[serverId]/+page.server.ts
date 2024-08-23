@@ -11,6 +11,5 @@ export const load: PageServerLoad = async ({ params, locals }) => {
         return await ipc.getPanels(params.serverId)
 
     }
-    console.log(await get_panels())
     return { panels: get_panels() };
 }
