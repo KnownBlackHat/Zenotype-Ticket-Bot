@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Literal, Optional
+from typing import Dict, Literal, Optional
 
 import httpx
 from disnake.ext import commands
@@ -36,15 +36,15 @@ class TicketBot(commands.Bot):
         route: str,
         method: Literal["GET", "POST"] = "GET",
         data: Optional[Dict] = None,
-    ) -> Any:
+    ) -> Dict:
         """
         Make a request to the IPC server
 
-        ----------------
         Parameters:
-        - route (str): The route to make the request to
-        - method (str): The method to use for the request
-        - data (dict): The data to send with the request
+        ----------------
+        route: The route to make the request to
+        method: The method to use for the request
+        data: The data to send with the request
         """
 
         if not route.startswith("/"):

@@ -20,8 +20,6 @@ export interface UserInfo {
     accent_color?: string;
 }
 
-
-
 class UserController {
     #token: string;
     #ipc: IPCController;
@@ -30,12 +28,19 @@ class UserController {
         this.#token = token;
         this.#ipc = new IPCController();
     }
+    async #req(route: string, method: "GET" | "POST" = "GET", data?: object) {
+        const options: RequestInit = {
+            method, headers: {
+                'Content-Type': 'application/json',
+                'Authorization': this.#token
+            },
+        }
+        if (method === "POST") {
+            options.body = JSON.stringify(data)
+        }
 
-    async #req(route: string) {
-        const req = await fetch(`https://discord.com/api/v10${route}`, {
-            headers: { Authorization: this.#token }
-        });
-        if (req.status !== 200) {
+        const req = await fetch(`https://discord.com/api/v10${route}`, options);
+        if (req.status.toString().startsWith('2')) {
             console.log("Access Denied By User Controller")
             return null
         }

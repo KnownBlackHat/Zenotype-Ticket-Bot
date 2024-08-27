@@ -4,6 +4,7 @@ import disnake
 from disnake.ext import commands
 
 from ticket_bot.bot import TicketBot
+from ticket_bot.constants import Colours
 
 logger = logging.getLogger(__name__)
 
@@ -63,12 +64,31 @@ class Commands(commands.Cog):
         ----------
         panel_id: The id of the panel
         """
-        raise NotImplemented
-
-        res = await self.bot.request(f"/panels?guild={inter.guild_id}", "GET")
-        if not res.get("success"):
+        res = await self.bot.request(f"/panels/find?panel={panel_id}", "GET")
+        if res.get("success") == False:
             raise commands.CommandError(f"IPC Error in panel/add {res}")
-        await inter.send(f"Panel with id {panel_id} created")
+        embed = disnake.Embed(
+            title=res["title"],
+            description=res["description"],
+            color=getattr(Colours, res["color"], Colours.blue),
+        )
+        embed.set_footer(text=res["author_name"], icon_url=res["author_url"])
+        embed.set_thumbnail(res["large_image"])
+        embed.set_image(res["small_image"])
+        component = disnake.ui.Button(
+            label=res["button_emoji"] + " " + res["button_text"],
+            style=getattr(
+                disnake.ButtonStyle, res["button_color"], disnake.ButtonStyle.primary
+            ),
+            # emoji=res["button_emoji"],
+        )
+        await inter.send(embed=embed, components=[component])
+
+    @create_panel.autocomplete("panel_id")
+    async def create_panel_autocomp(self, inter: disnake.GuildCommandInteraction, _):
+        res = await self.bot.request(f"/panels?guild={inter.guild.id}", "GET")
+        ids = map(lambda x: x["id"], res)
+        return ids
 
 
 def setup(bot: TicketBot):

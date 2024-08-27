@@ -25,9 +25,9 @@ export interface Panel {
     naming_scheme: string;
     large_image_url: string;
     small_image_url: string;
-    wlcm_title: string;
-    wlcm_description: string;
-    wlcm_color: string;
+    wlcm_title?: string;
+    wlcm_description?: string;
+    wlcm_color?: string;
     author_name: string;
     author_icon_url?: string;
     role: BigInteger;
