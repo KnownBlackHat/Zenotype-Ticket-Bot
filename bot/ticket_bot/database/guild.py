@@ -4,7 +4,7 @@ from .base import Base
 
 
 class Guild(Base):
-    id: Mapped[int] = mapped_column(
-        sqlalchemy.BigInteger, primary_key=True, autoincrement=False, index=True
-    )
+    __tablename__ = "guild"
+
+    id: Mapped[int] = mapped_column(sqlalchemy.BigInteger, primary_key=True)
     name: Mapped[str] = mapped_column(sqlalchemy.String(length=50))

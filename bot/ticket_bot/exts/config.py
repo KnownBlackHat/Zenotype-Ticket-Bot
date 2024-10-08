@@ -1,6 +1,9 @@
 import disnake
 from disnake.ext import commands
 import sqlalchemy
+
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
+
 from ticket_bot import TicketBot
 from ticket_bot.database import Config as TicketConfig
 
@@ -22,7 +25,7 @@ class ConfigSlot(Enum):
 
 class Config(commands.Cog):
     def __init__(self, bot: TicketBot) -> None:
-        self.bot = bot
+        self.bot = bot.db
 
     class TicketModal(disnake.ui.Modal):
         def __init__(
@@ -30,7 +33,9 @@ class Config(commands.Cog):
             category: disnake.CategoryChannel,
             config: ConfigSlot,
             user_or_role: disnake.Role | disnake.Member,
+            db: async_sessionmaker[AsyncSession],
         ):
+            self.db = db
 
             components = [
                 disnake.ui.TextInput(

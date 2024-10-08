@@ -6,7 +6,6 @@ class Client:
     token = os.getenv("BOT_TOKEN", "")
     log_file_name = "logs/ticket_bot.log"
     prefix = "~"
-    ipc_url = "http://localhost:8080"
 
 
 class Colours:
@@ -25,3 +24,8 @@ class Colours:
     python_yellow = 0xFFD43B
     grass_green = 0x66FF00
     gold = 0xE6C200
+
+
+class Database:
+    db = "ticket.db"
+    uri = f"sqlite+aiosqlite:///{db}"

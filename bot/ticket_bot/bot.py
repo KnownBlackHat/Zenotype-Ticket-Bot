@@ -1,11 +1,12 @@
 import logging
-from typing import Dict, Literal, Optional
-
 import httpx
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession, create_async_engine
+
 from disnake.ext import commands
 
-from ticket_bot.constants import Client
+from ticket_bot.constants import Database
 from ticket_bot.utils import extensions
+from ticket_bot.database import Base
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +18,11 @@ class TicketBot(commands.Bot):
         super().__init__(**kwargs)
         logger.info("Ticket Bot got initialized!")
         self.http_session = httpx.AsyncClient()
-
-    async def close(self) -> None:
-        """Close all sessions"""
-        await super().close()
-        if self.http_session:
-            await self.http_session.aclose()
+        self.db_engine = create_async_engine(Database.uri)
+        self.db_session = async_sessionmaker(
+            self.db_engine, expire_on_commit=False, class_=AsyncSession
+        )
+        logger.info("Ticket Bot is Ready!")
 
     def load_bot_extensions(self) -> None:
         """Load bot extensions released by walk_extensions()"""
@@ -31,31 +31,20 @@ class TicketBot(commands.Bot):
             self.load_extension(ext)
         logger.info("Extension loading process completed")
 
-    async def request(
-        self,
-        route: str,
-        method: Literal["GET", "POST"] = "GET",
-        data: Optional[Dict] = None,
-    ) -> Dict:
-        """
-        Make a request to the IPC server
+    @property
+    def db(self) -> async_sessionmaker[AsyncSession]:
+        """Alias of bot.db_session"""
+        return self.db_session
 
-        Parameters:
-        ----------------
-        route: The route to make the request to
-        method: The method to use for the request
-        data: The data to send with the request
-        """
+    async def init_db(self) -> None:
+        """Init Db"""
+        async with self.db_engine.begin() as connection:
+            await connection.run_sync(Base.metadata.create_all)
 
-        if not route.startswith("/"):
-            logger.warning("route should start with /")
-            raise httpx.InvalidURL("route should start with /")
-        if method == "GET":
-            resp = await self.http_session.get(Client.ipc_url + route)
-        else:
-            resp = await self.http_session.post(
-                Client.ipc_url + route,
-                json=data,
-            )
-            resp.raise_for_status()
-        return resp.json()
+    async def close(self) -> None:
+        """Close all sessions"""
+        await super().close()
+        if self.http_session:
+            await self.http_session.aclose()
+        if self.db_engine:
+            await self.db_engine.dispose()
