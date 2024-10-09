@@ -1,4 +1,3 @@
-import disnake
 import logging
 from disnake.ext import commands
 import sqlalchemy
@@ -23,24 +22,17 @@ class Register(commands.Cog):
                 await session.merge(Guild(id=guild.id, name=guild.name))
                 logger.info("Merged guild: %s", guild)
 
-            # Retrieve Guild
-            existing_guilds = await session.scalars(sqlalchemy.select(Guild))
-            existing_guilds = existing_guilds.all()
-            logger.info(f"Retrieving Guild: {existing_guilds=}")
+            # Db cleanup
+            bot_guilds_ids = {guild.id for guild in self.bot.guilds}
+            stale_guilds = await session.scalars(
+                sqlalchemy.select(Guild).where(Guild.id.not_in(bot_guilds_ids))
+            )
+
+            for stguild in stale_guilds:
+                logger.info(f"Removed Guild: {stguild}")
+                await session.delete(stguild)
 
             await session.commit()
-
-            # Db cleanup
-            bot_guild_ids = {guild_id.id for guild_id in self.bot.guilds}
-            async with self.bot.db.begin() as session:
-                for guild in existing_guilds:
-                    if guild.id not in bot_guild_ids:
-                        logger.info(
-                            f"{bot_guild_ids} Removed {Guild(id=guild.id, name=guild.name)}"
-                        )
-                        sql_query = sqlalchemy.delete(Guild).where(Guild.id == guild.id)
-                        await session.execute(sql_query)
-                        await session.commit()
 
 
 def setup(client: TicketBot):
