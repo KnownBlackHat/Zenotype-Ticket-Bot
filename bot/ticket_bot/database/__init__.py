@@ -1,5 +1,5 @@
 from .base import Base
-from .config import Config
+from .config import TicketConfig
 from .guild import Guild
 
-__all__ = ("Base", "Config", "Guild")
+__all__ = ("Base", "TicketConfig", "Guild")

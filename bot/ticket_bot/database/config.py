@@ -4,12 +4,10 @@ from .base import Base
 from .guild import Guild
 
 
-class Config(Base):
+class TicketConfig(Base):
     __tablename__ = "config"
 
-    id: Mapped[int] = mapped_column(
-        sqlalchemy.BigInteger, primary_key=True, autoincrement=False, index=True
-    )
+    id: Mapped[int] = mapped_column(sqlalchemy.Integer, primary_key=True, index=True)
     guild_id: Mapped[int] = mapped_column(
         sqlalchemy.ForeignKey("guild.id", ondelete="CASCADE"), index=True
     )
@@ -18,5 +16,10 @@ class Config(Base):
     description: Mapped[str] = mapped_column(sqlalchemy.String)
     img_url: Mapped[str] = mapped_column(sqlalchemy.String)
     role: Mapped[int] = mapped_column(sqlalchemy.BigInteger)
+
+    config: Mapped[int] = mapped_column(sqlalchemy.BigInteger, index=True)
+    category: Mapped[int] = mapped_column(sqlalchemy.BigInteger)
+
+    # Relations
 
     guild: Mapped[Guild] = relationship(passive_deletes=True)
