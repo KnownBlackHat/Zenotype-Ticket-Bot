@@ -20,6 +20,8 @@ class TicketConfig(Base):
     config: Mapped[int] = mapped_column(sqlalchemy.BigInteger, index=True)
     category: Mapped[int] = mapped_column(sqlalchemy.BigInteger)
 
+    color: Mapped[int] = mapped_column(sqlalchemy.Integer)
+
     # Relations
 
     guild: Mapped[Guild] = relationship(passive_deletes=True)

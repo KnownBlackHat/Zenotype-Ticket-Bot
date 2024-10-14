@@ -1,6 +1,7 @@
 import logging
-from disnake.ext import commands
 import sqlalchemy
+
+from disnake.ext import commands
 
 from ticket_bot.bot import TicketBot
 from ticket_bot.database import Guild

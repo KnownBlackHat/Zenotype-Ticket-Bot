@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 import disnake
 from disnake.ext import commands
@@ -33,11 +34,13 @@ class TicketModal(disnake.ui.Modal):
         config: ConfigSlot,
         user_or_role: disnake.Role | disnake.Member,
         db: async_sessionmaker[AsyncSession],
+        color: Optional[disnake.Color],
     ):
         self.db = db
         self.config = config
         self.role = user_or_role
         self.category = category
+        self.color = color
 
         components = [
             disnake.ui.TextInput(
@@ -82,6 +85,7 @@ class TicketModal(disnake.ui.Modal):
 
             if not result:
                 sql_query = TicketConfig(
+                    color=self.color.value if self.color else 0,
                     guild_id=inter.guild_id,
                     title=title,
                     description=description,
@@ -97,8 +101,9 @@ class TicketModal(disnake.ui.Modal):
                 result.description = description
                 result.img_url = image
                 result.role = self.role.id
-                result.config = self.config  # type: ignore
+                result.config = self.config.value
                 result.category = self.category.id
+                result.color = self.color.value if self.color else 0
 
             await session.commit()
 
@@ -119,13 +124,14 @@ class TConfig(commands.Cog):
     def __init__(self, bot: TicketBot) -> None:
         self.bot = bot
 
-    @commands.slash_command(name="setup")
+    @commands.slash_command(name="create")
     async def setup(
         self,
         inter: disnake.GuildCommandInteraction,
         category: disnake.CategoryChannel,
         config: ConfigSlot,
         team_role: disnake.Role | disnake.Member,
+        color: Optional[disnake.Color],
     ) -> None:
         """
         Setup Ticket System
@@ -138,9 +144,43 @@ class TConfig(commands.Cog):
         """
         await inter.response.send_modal(
             modal=TicketModal(
-                db=self.bot.db, category=category, config=config, user_or_role=team_role
+                db=self.bot.db,
+                category=category,
+                config=config,
+                user_or_role=team_role,
+                color=color,
             )
         )
+
+    @commands.slash_command(name="list_config")
+    async def list_config(self, inter: disnake.GuildCommandInteraction):
+        async with self.bot.db.begin() as session:
+            configs = await session.scalars(
+                sqlalchemy.select(TicketConfig).where(
+                    TicketConfig.guild_id == inter.guild_id
+                )
+            )
+            configs = configs.all()
+        if not configs:
+            await inter.send("No config found. Create one first!")
+            return
+
+        embeds = set()
+        for config in configs:
+            embed = disnake.Embed(
+                title=ConfigSlot(config.title).name,
+                description=f"""
+                    **Title:** {config.title}
+                    **Description:** \n{config.description}\n
+                    **Color:** {disnake.Color(config.color) if config.color else "None"}
+                    **User/Role:** {inter.guild.get_role(config.role) or inter.guild.get_member(config.role)}
+                    **Category:** {inter.guild.get_channel(config.category)}
+                    **Image:** {f"[Click To See]({config.img_url})" if config.img_url else "None"}
+                    """,
+            )
+            embed = embed.set_image(config.img_url)
+            embeds.add(embed)
+        await inter.send(embeds=list(embeds))
 
 
 def setup(client: TicketBot):
