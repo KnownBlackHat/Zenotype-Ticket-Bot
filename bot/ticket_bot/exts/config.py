@@ -153,33 +153,36 @@ class TConfig(commands.Cog):
         )
 
     @commands.slash_command(name="list_config")
-    async def list_config(self, inter: disnake.GuildCommandInteraction):
+    async def list_config(
+        self, inter: disnake.GuildCommandInteraction, slot: ConfigSlot
+    ):
         async with self.bot.db.begin() as session:
-            configs = await session.scalars(
+            config = await session.scalars(
                 sqlalchemy.select(TicketConfig).where(
-                    TicketConfig.guild_id == inter.guild_id
+                    TicketConfig.guild_id == inter.guild_id,
+                    TicketConfig.config == slot,
                 )
             )
-            configs = configs.all()
-        if not configs:
-            await inter.send("No config found. Create one first!")
+            config = config.one_or_none()
+        if not config:
+            await inter.send(f"No config found in slot: `{slot}`. Create one first!")
             return
 
-        embeds = set()
-        for config in configs:
-            embed = disnake.Embed(
-                title=ConfigSlot(config.title).name,
-                description=f"""
-                    **Title:** {config.title}
-                    **Description:** \n{config.description}\n
-                    **Color:** {disnake.Color(config.color) if config.color else "None"}
-                    **User/Role:** {inter.guild.get_role(config.role) or inter.guild.get_member(config.role)}
-                    **Category:** {inter.guild.get_channel(config.category)}
-                    **Image:** {f"[Click To See]({config.img_url})" if config.img_url else "None"}
-                    """,
-            )
-            embed = embed.set_image(config.img_url)
-            embeds.add(embed)
+        embeds = list()
+        embed = disnake.Embed(
+            title=f"**Slot:** {slot}",
+            description=f"""
+                **Title:** {config.title}
+                **Description:** \n{config.description}\n
+                **Color:** {disnake.Color(config.color) if config.color else "None"}
+                **User/Role:** {inter.guild.get_role(config.role) or inter.guild.get_member(config.role)}
+                **Category:** {inter.guild.get_channel(config.category)}
+                **Image:** {f"[Click To See]({config.img_url})" if config.img_url else "None"}
+                """,
+        )
+        embed = embed.set_image(config.img_url)
+        embed.color = config.color
+        embeds.append(embed)
         await inter.send(embeds=list(embeds))
 
 
