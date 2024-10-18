@@ -152,10 +152,17 @@ class TConfig(commands.Cog):
             )
         )
 
-    @commands.slash_command(name="list_config")
+    @commands.slash_command(name="show_config")
     async def list_config(
         self, inter: disnake.GuildCommandInteraction, slot: ConfigSlot
     ):
+        """
+        Show config of asked config slot
+
+        Parameters
+        ----------
+        slot: Slot to save your config
+        """
         async with self.bot.db.begin() as session:
             config = await session.scalars(
                 sqlalchemy.select(TicketConfig).where(

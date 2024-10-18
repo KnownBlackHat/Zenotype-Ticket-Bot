@@ -1,94 +1,136 @@
 import logging
+from typing import Union
 
 import disnake
 from disnake.ext import commands
+import sqlalchemy
 
 from ticket_bot.bot import TicketBot
-from ticket_bot.constants import Colours
+from ticket_bot.exts.config import ConfigSlot
+from ticket_bot.database import TicketConfig
 
 logger = logging.getLogger(__name__)
+
+
+class EmbedModal(disnake.ui.Modal):
+    def __init__(self, color):
+        self.color = color
+        components = [
+            disnake.ui.TextInput(
+                label="Image url",
+                placeholder="Enter image here",
+                custom_id="image",
+                style=disnake.TextInputStyle.short,
+                required=False,
+            ),
+            disnake.ui.TextInput(
+                label="Title",
+                placeholder="Enter title here",
+                custom_id="title",
+                style=disnake.TextInputStyle.short,
+            ),
+            disnake.ui.TextInput(
+                label="Description",
+                placeholder="Suggestion: Use <@User_Id> for mention & <#Channel_Id> for tagging the channel!",
+                custom_id="body",
+                style=disnake.TextInputStyle.paragraph,
+            ),
+        ]
+        super().__init__(
+            title="Embed Generator", custom_id="embed_generator", components=components
+        )
+
+    async def callback(self, interaction: disnake.ModalInteraction):
+        if not interaction.guild:
+            return
+        await interaction.response.defer()
+        title = interaction.text_values["title"]
+        content = interaction.text_values["body"]
+        image = interaction.text_values["image"]
+
+        embed = disnake.Embed(color=self.color, title=title, description=content)
+        embed.set_image(image)
+        embed.set_footer(text=interaction.guild.name, icon_url=interaction.guild.icon)
+        await interaction.send(
+            embed=disnake.Embed(
+                title="Embed sent! :white_check_mark:", color=disnake.Colour.green()
+            ),
+            ephemeral=True,
+            delete_after=1,
+        )
+        await interaction.channel.send(embed=embed)
+
+    async def on_error(self, error: Exception, inter: disnake.ModalInteraction):  # type: ignore[reportIncompatibleMethodOverride]
+        await inter.response.send_message(
+            embed=disnake.Embed(
+                color=disnake.Color.red(), title="Oops! Something went wrong :cry:"
+            ),
+            ephemeral=True,
+        )
 
 
 class Commands(commands.Cog):
     def __init__(self, bot: TicketBot) -> None:
         self.bot = bot
 
-    # @commands.Cog.listener()
-    # async def on_ready(self):
-    #     data = None
-    #     success = False
-    #     for guild in self.bot.guilds:
-    #         data = {
-    #             "id": str(guild.id),
-    #             "name": guild.name,
-    #             "icon": guild.icon.url if guild.icon else "",
-    #             "description": guild.description,
-    #             "owner": str(guild.owner_id),
-    #         }
-    #         res = await self.bot.request("/guilds/add", "POST", data=data)
-    #         success = False
-    #         if res.get("success"):
-    #             success = True
+    @commands.slash_command(name="embed", dm_permission=False)
+    async def slash_embed(
+        self,
+        interaction: disnake.CommandInteraction,
+        color: Union[disnake.Color, None] = None,
+    ):
+        """
+        Creates embed
 
-    #     if success:
-    #         logger.info("Db synced with guild")
-    #     else:
-    #         logger.error(f"Db update failed")
+        Parameters
+        ----------
+        color: Hex code or name of colour
+        """
+        await interaction.response.send_modal(modal=EmbedModal(color=color))
 
-    # @commands.slash_command(name="add_role")
-    # async def role_add(
-    #     self, inter: disnake.GuildCommandInteraction, role: disnake.Role
-    # ) -> None:
-    #     """
-    #     Sets required role to access dashboard
+    @commands.slash_command(name="set_button")
+    async def link(
+        self,
+        inter: disnake.GuildCommandInteraction,
+        msg: disnake.Message,
+        config: ConfigSlot,
+    ) -> None:
+        """
+        Adds a button to msg and link it with config slot
 
-    #     Parameters:
-    #     ----------
-    #     role: The role to be set as required role
-    #     """
+        Parameters
+        ----------
+        msg: Message link
+        config: Choose a config to add button for
+        """
+        await inter.response.defer(ephemeral=True)
+        async with self.bot.db.begin() as session:
+            sql_query = sqlalchemy.select(TicketConfig).where(
+                TicketConfig.config == config
+            )
+            result = await session.scalars(sql_query)
+            result = result.one_or_none()
+        if result is None:
+            await inter.send("Given config is empty")
+            return
+        elif self.bot.user.id != msg.author.id:
+            await inter.send(
+                "Message is not created by me, use `/embed` command to create one"
+            )
+            return
 
-    #     data = {"id": str(role.id)}
-    #     res = await self.bot.request(
-    #         f"/role/add?guild={inter.guild_id}", "POST", data=data
-    #     )
-    #     if not res.get("success"):
-    #         raise commands.CommandError(f"IPC Error in role/add {res}")
-    #     await inter.send(f"{role.mention} is now new role for dashboard access")
-
-    # @commands.slash_command(name="create_panel")
-    # async def create_panel(self, inter: disnake.GuildCommandInteraction, panel_id: int):
-    #     """
-    #     Creates a new panel
-
-    #     Parameters:
-    #     ----------
-    #     panel_id: The id of the panel
-    #     """
-    #     res = await self.bot.request(f"/panels/find?panel={panel_id}", "GET")
-    #     if res.get("success") == False:
-    #         raise commands.CommandError(f"IPC Error in panel/add {res}")
-    #     embed = disnake.Embed(
-    #         title=res["title"],
-    #         description=res["description"],
-    #         color=getattr(Colours, res["color"], Colours.blue),
-    #     )
-    #     embed.set_footer(text=res["author_name"], icon_url=res["author_url"])
-    #     embed.set_thumbnail(res["large_image"])
-    #     embed.set_image(res["small_image"])
-    #     component = disnake.ui.Button(
-    #         label=res["button_emoji"] + " " + res["button_text"],
-    #         style=getattr(
-    #             disnake.ButtonStyle, res["button_color"], disnake.ButtonStyle.primary
-    #         ),
-    #         # emoji=res["button_emoji"],
-    #     )
-    #     await inter.send(embed=embed, components=[component])
-
-    # @create_panel.autocomplete("panel_id")
-    # async def create_panel_autocomp(self, inter: disnake.GuildCommandInteraction, _):
-    #     res = await self.bot.request(f"/panels?guild={inter.guild.id}", "GET")
-    #     ids = map(lambda x: x["id"], res)
-    #     return ids
+        await msg.edit(
+            components=[
+                disnake.ui.Button(
+                    emoji="🎫",
+                    style=disnake.ButtonStyle.blurple,
+                    custom_id=f"ticket-{config}",
+                )
+            ]
+        )
+        await inter.send(
+            f"Ticket Button Linked to config slot: {config}", ephemeral=True
+        )
 
 
 def setup(bot: TicketBot):

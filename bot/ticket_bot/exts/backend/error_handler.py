@@ -42,7 +42,7 @@ class ErrorHandler(commands.Cog):
 
         elif isinstance(error, (commands.CommandInvokeError, commands.ConversionError)):
 
-            # This should in else
+            # This should be in else
             embed = disnake.Embed(
                 title="Internal Error",
                 description="".join(
