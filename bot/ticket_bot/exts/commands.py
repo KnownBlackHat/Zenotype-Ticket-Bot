@@ -111,11 +111,12 @@ class Commands(commands.Cog):
             result = await session.scalars(sql_query)
             result = result.one_or_none()
         if result is None:
-            await inter.send("Given config is empty")
+            await inter.send("Given config is empty", ephemeral=True)
             return
         elif self.bot.user.id != msg.author.id:
             await inter.send(
-                "Message is not created by me, use `/embed` command to create one"
+                "Message is not created by me, use `/embed` command to create one",
+                ephemeral=True,
             )
             return
 
@@ -128,6 +129,7 @@ class Commands(commands.Cog):
                 )
             ]
         )
+
         await inter.send(
             f"Ticket Button Linked to config slot: {config}", ephemeral=True
         )

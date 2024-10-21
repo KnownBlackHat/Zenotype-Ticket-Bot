@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from ticket_bot import TicketBot
 from ticket_bot.database import TicketConfig
+from ticket_bot.utils.buttons import DeleteButton
 
 from enum import Enum
 
@@ -175,7 +176,6 @@ class TConfig(commands.Cog):
             await inter.send(f"No config found in slot: `{slot}`. Create one first!")
             return
 
-        embeds = list()
         embed = disnake.Embed(
             title=f"**Slot:** {slot}",
             description=f"""
@@ -189,8 +189,7 @@ class TConfig(commands.Cog):
         )
         embed = embed.set_image(config.img_url)
         embed.color = config.color
-        embeds.append(embed)
-        await inter.send(embeds=list(embeds))
+        await inter.send(embed=embed, components=[DeleteButton(user=inter.author)])
 
 
 def setup(client: TicketBot):

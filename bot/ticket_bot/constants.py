@@ -2,6 +2,8 @@ import os
 
 
 class Client:
+    """Ticket Bot"""
+
     name = "Ticket Bot"
     token = os.getenv("BOT_TOKEN", "")
     log_file_name = "logs/ticket_bot.log"
@@ -9,6 +11,8 @@ class Client:
 
 
 class Colours:
+    """Colours"""
+
     white = 0xFFFFFF
     blue = 0x0279FD
     bright_green = 0x01D277
@@ -27,5 +31,17 @@ class Colours:
 
 
 class Database:
+    """Db info"""
+
     db = "ticket.db"
     uri = f"sqlite+aiosqlite:///{db}"
+
+
+class ButtonsIds:
+    """Button Custom Ids"""
+
+    delete_btn = "msg_delete:"
+    tckt_close = "tckt_close:"
+    tckt_close_with_reason = "tckt_close_with_reason:"
+    tckt_claim = "tckt_claim:"
+    tckt_create = "tckt_create:"
