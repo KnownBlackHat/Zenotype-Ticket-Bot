@@ -6,6 +6,7 @@ from disnake.ext import commands
 import sqlalchemy
 
 from ticket_bot.bot import TicketBot
+from ticket_bot.constants import ButtonsIds
 from ticket_bot.exts.config import ConfigSlot
 from ticket_bot.database import TicketConfig
 
@@ -94,6 +95,7 @@ class Commands(commands.Cog):
         inter: disnake.GuildCommandInteraction,
         msg: disnake.Message,
         config: ConfigSlot,
+        archive_forum: disnake.ForumChannel,
     ) -> None:
         """
         Adds a button to msg and link it with config slot
@@ -125,7 +127,7 @@ class Commands(commands.Cog):
                 disnake.ui.Button(
                     emoji="🎫",
                     style=disnake.ButtonStyle.blurple,
-                    custom_id=f"ticket-{config}",
+                    custom_id=f"{ButtonsIds.tckt_create}{archive_forum.id}:{config}",
                 )
             ]
         )

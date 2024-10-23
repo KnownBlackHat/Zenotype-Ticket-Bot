@@ -34,6 +34,7 @@ class TicketModal(disnake.ui.Modal):
         category: disnake.CategoryChannel,
         config: ConfigSlot,
         user_or_role: disnake.Role | disnake.Member,
+        transcript: disnake.TextChannel,
         db: async_sessionmaker[AsyncSession],
         color: Optional[disnake.Color],
     ):
@@ -42,6 +43,7 @@ class TicketModal(disnake.ui.Modal):
         self.role = user_or_role
         self.category = category
         self.color = color
+        self.transcript = transcript
 
         components = [
             disnake.ui.TextInput(
@@ -94,6 +96,7 @@ class TicketModal(disnake.ui.Modal):
                     role=self.role.id,
                     config=self.config,
                     category=self.category.id,
+                    transcript=self.transcript.id,
                 )
                 session.add(sql_query)
             else:
@@ -105,6 +108,7 @@ class TicketModal(disnake.ui.Modal):
                 result.config = self.config.value
                 result.category = self.category.id
                 result.color = self.color.value if self.color else 0
+                result.transcript = self.transcript.id
 
             await session.commit()
 
@@ -132,6 +136,7 @@ class TConfig(commands.Cog):
         category: disnake.CategoryChannel,
         config: ConfigSlot,
         team_role: disnake.Role | disnake.Member,
+        transcript: disnake.TextChannel,
         color: Optional[disnake.Color],
     ) -> None:
         """
@@ -150,6 +155,7 @@ class TConfig(commands.Cog):
                 config=config,
                 user_or_role=team_role,
                 color=color,
+                transcript=transcript,
             )
         )
 
@@ -185,6 +191,7 @@ class TConfig(commands.Cog):
                 **User/Role:** {inter.guild.get_role(config.role) or inter.guild.get_member(config.role)}
                 **Category:** {inter.guild.get_channel(config.category)}
                 **Image:** {f"[Click To See]({config.img_url})" if config.img_url else "None"}
+                **Transcript:** {inter.guild.get_channel(config.transcript)}
                 """,
         )
         embed = embed.set_image(config.img_url)
