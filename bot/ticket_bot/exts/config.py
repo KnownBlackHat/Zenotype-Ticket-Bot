@@ -31,17 +31,13 @@ class ConfigSlot(Enum):
 class TicketModal(disnake.ui.Modal):
     def __init__(
         self,
-        category: disnake.CategoryChannel,
         config: ConfigSlot,
-        user_or_role: disnake.Role | disnake.Member,
         transcript: disnake.TextChannel,
         db: async_sessionmaker[AsyncSession],
         color: Optional[disnake.Color],
     ):
         self.db = db
         self.config = config
-        self.role = user_or_role
-        self.category = category
         self.color = color
         self.transcript = transcript
 
@@ -93,9 +89,7 @@ class TicketModal(disnake.ui.Modal):
                     title=title,
                     description=description,
                     img_url=image,
-                    role=self.role.id,
                     config=self.config,
-                    category=self.category.id,
                     transcript=self.transcript.id,
                 )
                 session.add(sql_query)
@@ -104,9 +98,7 @@ class TicketModal(disnake.ui.Modal):
                 result.title = title
                 result.description = description
                 result.img_url = image
-                result.role = self.role.id
-                result.config = self.config.value
-                result.category = self.category.id
+                result.config = self.config  # type: ignore
                 result.color = self.color.value if self.color else 0
                 result.transcript = self.transcript.id
 
@@ -133,9 +125,7 @@ class TConfig(commands.Cog):
     async def setup(
         self,
         inter: disnake.GuildCommandInteraction,
-        category: disnake.CategoryChannel,
         config: ConfigSlot,
-        team_role: disnake.Role | disnake.Member,
         transcript: disnake.TextChannel,
         color: Optional[disnake.Color],
     ) -> None:
@@ -144,16 +134,12 @@ class TConfig(commands.Cog):
 
         Parameters
         ----------
-        category : CategoryChannel where the ticket channel will be created
-        team_role : Role or Member who can see the ticket channel
         config : Choose a slot to store your config
         """
         await inter.response.send_modal(
             modal=TicketModal(
                 db=self.bot.db,
-                category=category,
                 config=config,
-                user_or_role=team_role,
                 color=color,
                 transcript=transcript,
             )
@@ -188,8 +174,6 @@ class TConfig(commands.Cog):
                 **Title:** {config.title}
                 **Description:** \n{config.description}\n
                 **Color:** {disnake.Color(config.color) if config.color else "None"}
-                **User/Role:** {inter.guild.get_role(config.role) or inter.guild.get_member(config.role)}
-                **Category:** {inter.guild.get_channel(config.category)}
                 **Image:** {f"[Click To See]({config.img_url})" if config.img_url else "None"}
                 **Transcript:** {inter.guild.get_channel(config.transcript)}
                 """,
